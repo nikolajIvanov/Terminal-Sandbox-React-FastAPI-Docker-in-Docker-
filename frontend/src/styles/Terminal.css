@@ -1,0 +1,95 @@
+.terminal-container {
+  display: flex;
+  flex-direction: column;
+  height: 80vh;
+  width: 100%;
+  max-width: 1000px;
+  margin: 0 auto;
+  border-radius: 6px;
+  overflow: hidden;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+  background-color: #222;
+}
+
+.terminal-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  background-color: #333;
+  color: #fff;
+  padding: 10px 15px;
+  border-bottom: 1px solid #444;
+}
+
+.terminal-header h3 {
+  margin: 0;
+  font-size: 16px;
+  font-weight: 500;
+}
+
+.terminal-status {
+  font-size: 14px;
+}
+
+.terminal-controls {
+  display: flex;
+  gap: 8px;
+}
+
+.connected {
+  color: #4caf50;
+  font-weight: bold;
+}
+
+.disconnected {
+  color: #f44336;
+  font-weight: bold;
+}
+
+.error {
+  color: #ff9800;
+}
+
+.terminal {
+  flex: 1;
+  background-color: #1e1e1e;
+  padding: 4px;
+  width: 100%;
+  height: 100%;
+}
+
+button {
+  background-color: #444;
+  color: white;
+  border: none;
+  padding: 6px 12px;
+  border-radius: 4px;
+  cursor: pointer;
+  font-size: 14px;
+  transition: background-color 0.2s;
+}
+
+button:hover:not(:disabled) {
+  background-color: #555;
+}
+
+button:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.connect-btn {
+  background-color: #4caf50;
+}
+
+.connect-btn:hover:not(:disabled) {
+  background-color: #3d8b40;
+}
+
+.disconnect-btn {
+  background-color: #f44336;
+}
+
+.disconnect-btn:hover:not(:disabled) {
+  background-color: #d32f2f;
+} 
