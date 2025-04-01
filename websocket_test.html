@@ -1,0 +1,171 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>WebSocket Test</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+        #output {
+            border: 1px solid #ccc;
+            padding: 10px;
+            height: 300px;
+            overflow-y: auto;
+            background-color: #f5f5f5;
+            margin-bottom: 10px;
+        }
+        #input {
+            width: 100%;
+            padding: 8px;
+            box-sizing: border-box;
+            margin-bottom: 10px;
+        }
+        button {
+            padding: 8px 15px;
+            background-color: #4CAF50;
+            color: white;
+            border: none;
+            cursor: pointer;
+        }
+        button:hover {
+            background-color: #45a049;
+        }
+        .status {
+            margin-bottom: 15px;
+        }
+        .connected {
+            color: green;
+        }
+        .disconnected {
+            color: red;
+        }
+        #serverUrl {
+            width: 100%;
+            padding: 8px;
+            box-sizing: border-box;
+            margin-bottom: 10px;
+        }
+    </style>
+</head>
+<body>
+    <h1>WebSocket Terminal Test</h1>
+    
+    <div>
+        <label for="serverUrl">WebSocket-Server URL:</label>
+        <input type="text" id="serverUrl" value="ws://localhost:8000/ws" />
+        <p><small>Hinweis: Falls Sie Docker verwenden, verwenden Sie die entsprechende IP-Adresse oder den gehosteten Port.</small></p>
+    </div>
+    
+    <div class="status">Status: <span id="status" class="disconnected">Nicht verbunden</span></div>
+    
+    <div id="output"></div>
+    
+    <input type="text" id="input" placeholder="Befehl eingeben..." />
+    
+    <div>
+        <button id="connect">Verbinden</button>
+        <button id="disconnect">Trennen</button>
+        <button id="send">Senden</button>
+    </div>
+
+    <script>
+        let socket = null;
+        const output = document.getElementById('output');
+        const input = document.getElementById('input');
+        const status = document.getElementById('status');
+        const serverUrl = document.getElementById('serverUrl');
+        const connectBtn = document.getElementById('connect');
+        const disconnectBtn = document.getElementById('disconnect');
+        const sendBtn = document.getElementById('send');
+
+        // Deaktiviere Trennen- und Senden-Buttons zu Beginn
+        disconnectBtn.disabled = true;
+        sendBtn.disabled = true;
+
+        // Verbinde mit dem WebSocket-Server
+        connectBtn.addEventListener('click', () => {
+            // Verwende die URL aus dem Eingabefeld
+            const wsUrl = serverUrl.value;
+            try {
+                socket = new WebSocket(wsUrl);
+                
+                socket.onopen = () => {
+                    log('Verbindung hergestellt');
+                    status.textContent = 'Verbunden';
+                    status.className = 'connected';
+                    
+                    // UI-Status aktualisieren
+                    connectBtn.disabled = true;
+                    disconnectBtn.disabled = false;
+                    sendBtn.disabled = false;
+                };
+                
+                socket.onmessage = (event) => {
+                    log(`Empfangen: ${event.data}`);
+                };
+                
+                socket.onclose = (event) => {
+                    log(`Verbindung geschlossen: Code=${event.code}, Grund=${event.reason || 'Kein Grund angegeben'}`);
+                    status.textContent = 'Nicht verbunden';
+                    status.className = 'disconnected';
+                    
+                    // UI-Status aktualisieren
+                    connectBtn.disabled = false;
+                    disconnectBtn.disabled = true;
+                    sendBtn.disabled = true;
+                    
+                    socket = null;
+                };
+                
+                socket.onerror = (error) => {
+                    log(`Fehler: ${error}`);
+                    console.error('WebSocket Fehler:', error);
+                };
+            } catch (e) {
+                log(`Fehler beim Erstellen der WebSocket-Verbindung: ${e.message}`);
+                console.error('WebSocket Fehler:', e);
+            }
+        });
+        
+        // Trenne die WebSocket-Verbindung
+        disconnectBtn.addEventListener('click', () => {
+            if (socket) {
+                socket.close();
+            }
+        });
+        
+        // Sende eine Nachricht
+        sendBtn.addEventListener('click', sendMessage);
+        input.addEventListener('keypress', (e) => {
+            if (e.key === 'Enter') {
+                sendMessage();
+            }
+        });
+        
+        function sendMessage() {
+            if (socket && socket.readyState === WebSocket.OPEN) {
+                const message = input.value;
+                if (message) {
+                    socket.send(message);
+                    log(`Gesendet: ${message}`);
+                    input.value = '';
+                }
+            }
+        }
+        
+        // Ausgabe ins Log
+        function log(message) {
+            const entry = document.createElement('div');
+            entry.textContent = message;
+            output.appendChild(entry);
+            output.scrollTop = output.scrollHeight;
+            console.log(message);
+        }
+    </script>
+</body>
+</html> 
